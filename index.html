@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>俄罗斯方块 - Tetris</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="game-wrapper">
+        <div class="game-header">
+            <h1 class="game-title">俄罗斯方块</h1>
+            <button class="theme-toggle" id="themeToggle">切换主题</button>
+        </div>
+
+        <div class="game-container">
+            <div class="game-board">
+                <canvas id="gameCanvas" width="300" height="600" data-block-size="30"></canvas>
+            </div>
+
+            <div class="side-panels">
+                <div class="side-panel-left">
+                    <div class="panel-box">
+                        <div class="panel-title">得分</div>
+                        <div class="score-value" id="score">0</div>
+                    </div>
+
+                    <div class="panel-box">
+                        <div class="panel-title">最高分</div>
+                        <div class="score-value" id="highScore">0</div>
+                    </div>
+
+                    <div class="panel-box">
+                        <div class="panel-title">等级</div>
+                        <div class="score-value" id="level">1</div>
+                    </div>
+
+                    <div class="panel-box">
+                        <div class="panel-title">消除行数</div>
+                        <div class="score-value" id="lines">0</div>
+                    </div>
+
+                    <div class="panel-box next-piece">
+                        <div class="panel-title">下一个</div>
+                        <canvas id="nextCanvas" width="120" height="120"></canvas>
+                    </div>
+                </div>
+
+                <div class="side-panel-right">
+                    <div class="panel-box difficulty-selector">
+                        <div class="panel-title">难度选择</div>
+                        <div class="difficulty-options">
+                            <button class="diff-btn" data-diff="easy">简单</button>
+                            <button class="diff-btn active" data-diff="normal">普通</button>
+                            <button class="diff-btn" data-diff="hard">困难</button>
+                        </div>
+                        <div class="grid-selector">
+                            <button class="grid-btn active" data-grid="10x20">10×20</button>
+                            <button class="grid-btn" data-grid="12x22">12×22</button>
+                        </div>
+                    </div>
+
+                    <div class="panel-box settings">
+                        <div class="panel-title">设置</div>
+                        <div class="settings-row">
+                            <span>音效</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="soundToggle" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="settings-row">
+                            <span>音乐</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="musicToggle">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="button-group">
+                        <button class="btn" id="startBtn">开始游戏</button>
+                        <div class="btn-row">
+                            <button class="btn btn-secondary" id="pauseBtn" disabled>暂停</button>
+                            <button class="btn btn-secondary" id="replayBtn" disabled>回放</button>
+                        </div>
+                    </div>
+
+                    <div class="panel-box controls">
+                        <div class="panel-title">操作说明</div>
+                        <div class="control-item">
+                            <span class="control-key">← →</span>
+                            <span>移动</span>
+                        </div>
+                        <div class="control-item">
+                            <span class="control-key">↓</span>
+                            <span>加速</span>
+                        </div>
+                        <div class="control-item">
+                            <span class="control-key">↑</span>
+                            <span>旋转</span>
+                        </div>
+                        <div class="control-item">
+                            <span class="control-key">空格</span>
+                            <span>直接落下</span>
+                        </div>
+                        <div class="control-item">
+                            <span class="control-key">P</span>
+                            <span>暂停</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mobile-controls">
+            <div class="mobile-row">
+                <button class="mobile-btn" id="mobileRotate">↑</button>
+            </div>
+            <div class="mobile-row">
+                <button class="mobile-btn" id="mobileLeft">←</button>
+                <button class="mobile-btn" id="mobileDown">↓</button>
+                <button class="mobile-btn" id="mobileRight">→</button>
+            </div>
+            <div class="mobile-row">
+                <button class="mobile-btn" id="mobileDrop">▼</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="game-over" id="gameOver">
+        <div class="game-over-content">
+            <h2>游戏结束!</h2>
+            <div class="final-stats">
+                <div class="stat-item">
+                    <div class="stat-label">最终得分</div>
+                    <div class="stat-value" id="finalScore">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">消除行数</div>
+                    <div class="stat-value" id="finalLines">0</div>
+                </div>
+            </div>
+            <div class="new-record" id="newRecord" style="display: none;">🎉 新纪录! 🎉</div>
+            <div class="leaderboard" id="leaderboard">
+                <div class="leaderboard-title">历史排行榜</div>
+                <div id="leaderboardList"></div>
+            </div>
+            <div class="replay-controls">
+                <button class="btn" id="replayFromEndBtn">回放本局</button>
+            </div>
+            <div class="button-group" style="margin-top: 20px;">
+                <button class="btn" id="restartBtn">再来一局</button>
+                <button class="btn btn-secondary" id="closeGameOverBtn">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/storage.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/animations.js"></script>
+    <script src="js/renderer.js"></script>
+    <script src="js/game.js"></script>
+    <script>
+        const UI = {
+            elements: {},
+
+            init() {
+                this.elements = {
+                    canvas: document.getElementById('gameCanvas'),
+                    nextCanvas: document.getElementById('nextCanvas'),
+                    score: document.getElementById('score'),
+                    highScore: document.getElementById('highScore'),
+                    level: document.getElementById('level'),
+                    lines: document.getElementById('lines'),
+                    startBtn: document.getElementById('startBtn'),
+                    pauseBtn: document.getElementById('pauseBtn'),
+                    replayBtn: document.getElementById('replayBtn'),
+                    themeToggle: document.getElementById('themeToggle'),
+                    soundToggle: document.getElementById('soundToggle'),
+                    musicToggle: document.getElementById('musicToggle'),
+                    gameOver: document.getElementById('gameOver'),
+                    finalScore: document.getElementById('finalScore'),
+                    finalLines: document.getElementById('finalLines'),
+                    newRecord: document.getElementById('newRecord'),
+                    leaderboardList: document.getElementById('leaderboardList'),
+                    restartBtn: document.getElementById('restartBtn'),
+                    closeGameOverBtn: document.getElementById('closeGameOverBtn'),
+                    replayFromEndBtn: document.getElementById('replayFromEndBtn')
+                };
+                this.bindEvents();
+                this.loadSettings();
+                this.updateLeaderboard();
+            },
+
+            bindEvents() {
+                this.elements.startBtn.addEventListener('click', () => this.handleStart());
+                this.elements.pauseBtn.addEventListener('click', () => this.handlePause());
+                this.elements.replayBtn.addEventListener('click', () => this.handleReplay());
+                this.elements.themeToggle.addEventListener('click', () => this.toggleTheme());
+                this.elements.soundToggle.addEventListener('change', (e) => this.toggleSound(e.target.checked));
+                this.elements.musicToggle.addEventListener('change', (e) => this.toggleMusic(e.target.checked));
+                this.elements.restartBtn.addEventListener('click', () => this.handleRestart());
+                this.elements.closeGameOverBtn.addEventListener('click', () => this.hideGameOver());
+                this.elements.replayFromEndBtn.addEventListener('click', () => this.handleReplayFromEnd());
+
+                document.querySelectorAll('.diff-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => this.selectDifficulty(e.target));
+                });
+
+                document.querySelectorAll('.grid-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => this.selectGridSize(e.target));
+                });
+
+                document.addEventListener('keydown', (e) => this.handleKeydown(e));
+
+                this.bindMobileControls();
+            },
+
+            bindMobileControls() {
+                const mobileActions = {
+                    'mobileLeft': () => Game.moveLeft(),
+                    'mobileRight': () => Game.moveRight(),
+                    'mobileDown': () => Game.moveDown(),
+                    'mobileRotate': () => Game.rotate(),
+                    'mobileDrop': () => Game.hardDrop()
+                };
+
+                Object.entries(mobileActions).forEach(([id, action]) => {
+                    const btn = document.getElementById(id);
+                    if (btn) {
+                        btn.addEventListener('touchstart', (e) => {
+                            e.preventDefault();
+                            action();
+                        });
+                        btn.addEventListener('click', action);
+                    }
+                });
+            },
+
+            handleKeydown(e) {
+                if (Game.state === 'gameover' && e.key !== 'Enter') return;
+
+                switch (e.key) {
+                    case 'ArrowLeft':
+                        e.preventDefault();
+                        Game.moveLeft();
+                        break;
+                    case 'ArrowRight':
+                        e.preventDefault();
+                        Game.moveRight();
+                        break;
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        Game.moveDown();
+                        break;
+                    case 'ArrowUp':
+                        e.preventDefault();
+                        Game.rotate();
+                        break;
+                    case ' ':
+                        e.preventDefault();
+                        Game.hardDrop();
+                        break;
+                    case 'p':
+                    case 'P':
+                        e.preventDefault();
+                        this.handlePause();
+                        break;
+                }
+            },
+
+            handleStart() {
+                if (Game.state === 'idle' || Game.state === 'gameover') {
+                    Game.start();
+                    this.elements.pauseBtn.disabled = false;
+                    this.elements.pauseBtn.textContent = '暂停';
+                    this.elements.replayBtn.disabled = true;
+                } else if (Game.state === 'playing') {
+                    this.handlePause();
+                }
+            },
+
+            handlePause() {
+                if (Game.state === 'playing' || Game.state === 'paused') {
+                    Game.pause();
+                    if (Game.state === 'paused') {
+                        this.elements.pauseBtn.textContent = '继续';
+                    } else {
+                        this.elements.pauseBtn.textContent = '暂停';
+                    }
+                }
+            },
+
+            handleRestart() {
+                this.hideGameOver();
+                Game.restart();
+                this.elements.pauseBtn.disabled = false;
+                this.elements.pauseBtn.textContent = '暂停';
+            },
+
+            handleReplay() {
+                if (Storage.getReplay().length > 0) {
+                    Game.startReplay(() => {
+                        console.log('Replay finished');
+                    });
+                }
+            },
+
+            handleReplayFromEnd() {
+                this.hideGameOver();
+                Game.startReplay(() => {
+                    this.elements.replayBtn.disabled = true;
+                });
+            },
+
+            toggleTheme() {
+                const html = document.documentElement;
+                const currentTheme = html.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                html.setAttribute('data-theme', newTheme);
+                const settings = Storage.getSettings();
+                settings.theme = newTheme;
+                Storage.saveSettings(settings);
+            },
+
+            toggleSound(enabled) {
+                Audio.setEnabled(enabled);
+                const settings = Storage.getSettings();
+                settings.soundEnabled = enabled;
+                Storage.saveSettings(settings);
+            },
+
+            toggleMusic(enabled) {
+                Audio.setMusicEnabled(enabled);
+                if (enabled && Game.state === 'playing') {
+                    Audio.startMusic();
+                }
+                const settings = Storage.getSettings();
+                settings.musicEnabled = enabled;
+                Storage.saveSettings(settings);
+            },
+
+            selectDifficulty(btn) {
+                document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const difficulty = btn.dataset.diff;
+                Game.setDifficulty(difficulty);
+                const settings = Storage.getSettings();
+                settings.difficulty = difficulty;
+                Storage.saveSettings(settings);
+            },
+
+            selectGridSize(btn) {
+                document.querySelectorAll('.grid-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const [cols, rows] = btn.dataset.grid.split('x').map(Number);
+                Game.setGridSize(cols, rows);
+                const settings = Storage.getSettings();
+                settings.gridSize = btn.dataset.grid;
+                Storage.saveSettings(settings);
+            },
+
+            loadSettings() {
+                const settings = Storage.getSettings();
+                this.elements.soundToggle.checked = settings.soundEnabled;
+                this.elements.musicToggle.checked = settings.musicEnabled;
+                Audio.setEnabled(settings.soundEnabled);
+                Audio.setMusicEnabled(settings.musicEnabled);
+
+                document.documentElement.setAttribute('data-theme', settings.theme || 'dark');
+
+                const diffBtn = document.querySelector(`.diff-btn[data-diff="${settings.difficulty || 'normal'}"]`);
+                if (diffBtn) {
+                    document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+                    diffBtn.classList.add('active');
+                }
+
+                const gridBtn = document.querySelector(`.grid-btn[data-grid="${settings.gridSize || '10x20'}"]`);
+                if (gridBtn) {
+                    document.querySelectorAll('.grid-btn').forEach(b => b.classList.remove('active'));
+                    gridBtn.classList.add('active');
+                    const [cols, rows] = (settings.gridSize || '10x20').split('x').map(Number);
+                    Game.setGridSize(cols, rows);
+                }
+
+                Game.highScore = Storage.getHighScore();
+                document.getElementById('highScore').textContent = Game.highScore;
+            },
+
+            showGameOver(score, lines, isNewHighScore) {
+                this.elements.finalScore.textContent = score;
+                this.elements.finalLines.textContent = lines;
+                this.elements.newRecord.style.display = isNewHighScore ? 'block' : 'none';
+                this.updateLeaderboard();
+                this.elements.gameOver.classList.add('show');
+                this.elements.replayBtn.disabled = false;
+            },
+
+            hideGameOver() {
+                this.elements.gameOver.classList.remove('show');
+            },
+
+            updateLeaderboard() {
+                const leaderboard = Storage.getLeaderboard();
+                const listEl = this.elements.leaderboardList;
+                listEl.innerHTML = '';
+
+                if (leaderboard.length === 0) {
+                    listEl.innerHTML = '<div class="leaderboard-item">暂无记录</div>';
+                    return;
+                }
+
+                leaderboard.slice(0, 5).forEach((entry, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'leaderboard-item';
+                    item.innerHTML = `<span>#${index + 1} ${entry.date}</span><span>${entry.score}</span>`;
+                    listEl.appendChild(item);
+                });
+            },
+
+            updateStartButton(text) {
+                this.elements.startBtn.textContent = text;
+            },
+
+            updatePauseButton(text) {
+                this.elements.pauseBtn.textContent = text;
+            },
+
+            updateScoreDisplay() {
+                Game.updateScoreDisplay();
+            }
+        };
+
+        window.onload = () => {
+            Renderer.init('gameCanvas', 'nextCanvas');
+            Game.init();
+            UI.init();
+            document.getElementById('highScore').textContent = Storage.getHighScore();
+            Renderer.clearBoard();
+            Renderer.clearNext();
+        };
+
+        document.addEventListener('touchstart', function() {
+            Audio.init();
+            Audio.resume();
+        }, { once: true });
+    </script>
+</body>
+</html>
