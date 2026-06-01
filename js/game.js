@@ -58,6 +58,8 @@ const Game = {
         this.replayData = [];
         this.replayIndex = 0;
         this.isReplaying = false;
+        this.pieceSequence = [];
+        this.pieceIndex = 0;
         if (this.gameInterval) clearInterval(this.gameInterval);
     },
 
@@ -71,6 +73,8 @@ const Game = {
         this.level = 1;
         this.lines = 0;
         this.replayData = [];
+        this.pieceSequence = [];
+        this.pieceIndex = 0;
         this.currentPiece = this.createPiece();
         this.nextPiece = this.createPiece();
         this.updateScoreDisplay();
@@ -121,6 +125,9 @@ const Game = {
         if (!this.currentPiece) return;
         if (!this.currentPiece.collidesBoard(0, 1)) {
             this.currentPiece.y++;
+            if (!this.isReplaying) {
+                this.logAction('drop', {});
+            }
         } else {
             this.lockPiece();
         }
@@ -255,7 +262,7 @@ const Game = {
                 this.pieceSequence.push(type);
             }
         }
-        return new Piece(type, this.COLS);
+        return new Piece(type, this.COLS, this.ROWS);
     },
 
     updateScoreDisplay() {
@@ -284,9 +291,11 @@ const Game = {
         this.replayIndex = 0;
         this.pieceIndex = 0;
         this.replayStartTime = Date.now();
+        this.state = 'playing';
         
         if (replayData.settings) {
             this.setGridSize(replayData.settings.cols || 10, replayData.settings.rows || 20);
+            this.speed = this.DIFFICULTY_SPEEDS[replayData.settings.difficulty] || 700;
         }
         this.COLS = this.gridCols;
         this.ROWS = this.gridRows;
@@ -301,6 +310,7 @@ const Game = {
         
         Renderer.setGridSize(this.gridCols, this.gridRows);
         Renderer.render(this.board, this.currentPiece, this.nextPiece);
+        this.updateScoreDisplay();
         this.playNextReplayAction(onComplete);
     },
 
@@ -328,6 +338,9 @@ const Game = {
                     this.score += 1;
                 }
                 break;
+            case 'drop':
+                this.currentPiece.y++;
+                break;
             case 'rotate':
                 this.currentPiece.rotate();
                 break;
@@ -338,11 +351,22 @@ const Game = {
                 this.lockPieceReplay();
                 break;
             case 'lock':
-                this.lockPieceReplay();
+                if (this.currentPiece) {
+                    const gameOver = this.currentPiece.lock();
+                    if (gameOver) {
+                        this.isReplaying = false;
+                        this.state = 'gameover';
+                    } else {
+                        this.currentPiece = this.nextPiece;
+                        this.nextPiece = this.createPiece();
+                    }
+                }
                 break;
             case 'newPiece':
-                this.currentPiece = this.createPiece();
-                this.nextPiece = this.createPiece();
+                if (!this.currentPiece) {
+                    this.currentPiece = this.nextPiece;
+                    this.nextPiece = this.createPiece();
+                }
                 break;
             case 'clear':
                 this.clearLinesReplay(action.data.lines);
@@ -403,7 +427,7 @@ const Game = {
 };
 
 class Piece {
-    constructor(type, cols) {
+    constructor(type, cols, rows) {
         this.type = type;
         this.shape = Game.SHAPES[type].map(row => [...row]);
         this.color = Game.COLORS[type];
@@ -411,6 +435,8 @@ class Piece {
         this.y = 0;
         this.visualOffsetX = 0;
         this.visualOffsetY = 0;
+        this.cols = cols;
+        this.rows = rows;
     }
 
     rotate() {
@@ -437,7 +463,7 @@ class Piece {
                 if (this.shape[row][col]) {
                     const newX = this.x + col + dx;
                     const newY = this.y + row + dy;
-                    if (newX < 0 || newX >= Game.COLS || newY >= Game.ROWS) {
+                    if (newX < 0 || newX >= this.cols || newY >= this.rows) {
                         return true;
                     }
                     if (newY >= 0 && Game.board[newY] && Game.board[newY][newX]) {

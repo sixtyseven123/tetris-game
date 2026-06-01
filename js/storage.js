@@ -1,9 +1,12 @@
 const Storage = {
     KEYS: {
         HIGH_SCORE: 'tetris_highScore',
-        LEADERBOARD: 'tetris_leaderBOARD',
+        LEADERBOARD: 'tetris_leaderboard',
         REPLAY: 'tetris_replay',
-        SETTINGS: 'tetris_settings'
+        SETTINGS: 'tetris_settings',
+        ACHIEVEMENTS: 'tetris_achievements',
+        GUIDE_SHOWN: 'tetris_guide_shown',
+        CURRENT_USER: 'tetris_current_user'
     },
 
     getHighScore() {
@@ -25,17 +28,29 @@ const Storage = {
         return data ? JSON.parse(data) : [];
     },
 
-    addToLeaderboard(score) {
+    addToLeaderboard(playerName, score, time) {
         const leaderboard = this.getLeaderboard();
         const entry = {
+            id: Date.now(),
+            playerName: playerName || '匿名玩家',
             score: score,
-            date: new Date().toISOString().split('T')[0]
+            time: time,
+            date: new Date().toLocaleString('zh-CN')
         };
         leaderboard.push(entry);
-        leaderboard.sort((a, b) => b.score - a.score);
-        const top10 = leaderboard.slice(0, 10);
-        localStorage.setItem(this.KEYS.LEADERBOARD, JSON.stringify(top10));
-        return top10;
+        const top20 = leaderboard.slice(0, 20);
+        localStorage.setItem(this.KEYS.LEADERBOARD, JSON.stringify(top20));
+        return top20;
+    },
+
+    getLeaderboardSortedByScore() {
+        const leaderboard = this.getLeaderboard();
+        return [...leaderboard].sort((a, b) => b.score - a.score);
+    },
+
+    getLeaderboardSortedByTime() {
+        const leaderboard = this.getLeaderboard();
+        return [...leaderboard].sort((a, b) => a.time - b.time);
     },
 
     clearLeaderboard() {
@@ -68,5 +83,47 @@ const Storage = {
 
     saveSettings(settings) {
         localStorage.setItem(this.KEYS.SETTINGS, JSON.stringify(settings));
+    },
+
+    getAchievements() {
+        const data = localStorage.getItem(this.KEYS.ACHIEVEMENTS);
+        return data ? JSON.parse(data) : [];
+    },
+
+    saveAchievements(achievements) {
+        localStorage.setItem(this.KEYS.ACHIEVEMENTS, JSON.stringify(achievements));
+    },
+
+    unlockAchievement(achievementId) {
+        const achievements = this.getAchievements();
+        if (!achievements.includes(achievementId)) {
+            achievements.push(achievementId);
+            this.saveAchievements(achievements);
+            return true;
+        }
+        return false;
+    },
+
+    isAchievementUnlocked(achievementId) {
+        const achievements = this.getAchievements();
+        return achievements.includes(achievementId);
+    },
+
+    getGuideShown() {
+        const data = localStorage.getItem(this.KEYS.GUIDE_SHOWN);
+        return data === 'true';
+    },
+
+    setGuideShown(value) {
+        localStorage.setItem(this.KEYS.GUIDE_SHOWN, value.toString());
+    },
+
+    getCurrentUser() {
+        const data = localStorage.getItem(this.KEYS.CURRENT_USER);
+        return data ? JSON.parse(data) : { name: '玩家', bestScore: 0 };
+    },
+
+    saveCurrentUser(user) {
+        localStorage.setItem(this.KEYS.CURRENT_USER, JSON.stringify(user));
     }
 };

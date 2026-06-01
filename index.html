@@ -10,7 +10,14 @@
     <div class="game-wrapper">
         <div class="game-header">
             <h1 class="game-title">俄罗斯方块</h1>
-            <button class="theme-toggle" id="themeToggle">切换主题</button>
+            <div class="header-buttons">
+                <input type="text" id="playerName" placeholder="输入昵称" maxlength="10" class="player-name-input">
+                <button class="header-btn" id="achievementsBtn">🏆 成就</button>
+                <button class="header-btn" id="leaderboardBtn">📊 排行榜</button>
+                <button class="header-btn" id="resumeBtn">👤 个人</button>
+                <button class="header-btn" id="guideBtn">❓ 帮助</button>
+                <button class="theme-toggle" id="themeToggle">切换主题</button>
+            </div>
         </div>
 
         <div class="game-container">
@@ -38,6 +45,11 @@
                     <div class="panel-box">
                         <div class="panel-title">消除行数</div>
                         <div class="score-value" id="lines">0</div>
+                    </div>
+
+                    <div class="panel-box">
+                        <div class="panel-title">游戏时间</div>
+                        <div class="score-value" id="gameTime">00:00</div>
                     </div>
 
                     <div class="panel-box next-piece">
@@ -128,6 +140,16 @@
         </div>
     </div>
 
+    <div class="pause-overlay" id="pauseOverlay">
+        <div class="pause-content">
+            <h2>游戏暂停</h2>
+            <div class="pause-menu">
+                <button class="btn" id="resumeFromPauseBtn">继续游戏</button>
+                <button class="btn btn-secondary" id="resumeFromPauseViewBtn">查看简历</button>
+            </div>
+        </div>
+    </div>
+
     <div class="game-over" id="gameOver">
         <div class="game-over-content">
             <h2>游戏结束!</h2>
@@ -140,6 +162,10 @@
                     <div class="stat-label">消除行数</div>
                     <div class="stat-value" id="finalLines">0</div>
                 </div>
+                <div class="stat-item">
+                    <div class="stat-label">游戏时间</div>
+                    <div class="stat-value" id="finalTime">00:00</div>
+                </div>
             </div>
             <div class="new-record" id="newRecord" style="display: none;">🎉 新纪录! 🎉</div>
             <div class="leaderboard" id="leaderboard">
@@ -148,10 +174,86 @@
             </div>
             <div class="replay-controls">
                 <button class="btn" id="replayFromEndBtn">回放本局</button>
+                <button class="btn" id="shareBtn">分享成绩</button>
             </div>
             <div class="button-group" style="margin-top: 20px;">
                 <button class="btn" id="restartBtn">再来一局</button>
                 <button class="btn btn-secondary" id="closeGameOverBtn">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="achievementsModal">
+        <div class="modal-content achievements-modal">
+            <div class="modal-header">
+                <h3>🏆 成就系统</h3>
+                <button class="modal-close" onclick="UI.closeAchievementsModal()">✕</button>
+            </div>
+            <div class="achievements-progress">
+                <span>已解锁: <strong id="achievementsUnlocked">0</strong> / <strong id="achievementsTotal">0</strong></span>
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" id="achievementsProgress"></div>
+                </div>
+            </div>
+            <div class="achievements-grid" id="achievementsGrid"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="leaderboardModal">
+        <div class="modal-content leaderboard-modal">
+            <div class="modal-header">
+                <h3>📊 排行榜</h3>
+                <button class="modal-close" onclick="UI.closeLeaderboardModal()">✕</button>
+            </div>
+            <div class="leaderboard-tabs">
+                <button class="tab-btn active" data-tab="score">按分数排序</button>
+                <button class="tab-btn" data-tab="time">按时间排序</button>
+            </div>
+            <div class="leaderboard-content" id="leaderboardContent">
+                <div class="leaderboard-placeholder">加载中...</div>
+            </div>
+            <button class="btn btn-secondary clear-leaderboard-btn" id="clearLeaderboardBtn">清空排行榜</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="resumeModal">
+        <div class="modal-content resume-modal">
+            <div class="modal-header">
+                <h3>👤 个人简历</h3>
+                <button class="modal-close" onclick="UI.closeResumeModal()">✕</button>
+            </div>
+            <div class="resume-container">
+                <div class="resume-header">
+                    <div class="resume-avatar" id="resumeAvatar">阮</div>
+                    <h2 id="resumeName">阮</h2>
+                    <p class="resume-title" id="resumeTitle">游戏开发者 / 全栈工程师</p>
+                </div>
+                <div class="resume-section">
+                    <h3>个人简介</h3>
+                    <p id="resumeBio">热爱游戏开发，专注于创造有趣的游戏体验。擅长前端开发，对游戏引擎和交互设计有深入研究。</p>
+                </div>
+                <div class="resume-section">
+                    <h3>技术栈</h3>
+                    <div class="resume-tags" id="resumeSkills">
+                        <span class="tag">JavaScript</span>
+                        <span class="tag">HTML5</span>
+                        <span class="tag">Canvas</span>
+                        <span class="tag">CSS3</span>
+                    </div>
+                </div>
+                <div class="resume-section">
+                    <h3>项目经验</h3>
+                    <div class="resume-projects" id="resumeProjects">
+                        <div class="project-item">
+                            <h4>俄罗斯方块</h4>
+                            <p>经典益智游戏，支持多种模式和排行榜系统</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="resume-section">
+                    <h3>联系方式</h3>
+                    <p id="resumeContact">邮箱: 1775849458@qq.com</p>
+                </div>
             </div>
         </div>
     </div>
@@ -161,9 +263,16 @@
     <script src="js/animations.js"></script>
     <script src="js/renderer.js"></script>
     <script src="js/game.js"></script>
+    <script src="js/achievements.js"></script>
+    <script src="js/share.js"></script>
+    <script src="js/loading.js"></script>
+    <script src="js/transitions.js"></script>
+    <script src="js/guide.js"></script>
     <script>
         const UI = {
             elements: {},
+            gameStartTime: 0,
+            gameTimeInterval: null,
 
             init() {
                 this.elements = {
@@ -173,6 +282,7 @@
                     highScore: document.getElementById('highScore'),
                     level: document.getElementById('level'),
                     lines: document.getElementById('lines'),
+                    gameTime: document.getElementById('gameTime'),
                     startBtn: document.getElementById('startBtn'),
                     pauseBtn: document.getElementById('pauseBtn'),
                     replayBtn: document.getElementById('replayBtn'),
@@ -180,29 +290,55 @@
                     soundToggle: document.getElementById('soundToggle'),
                     musicToggle: document.getElementById('musicToggle'),
                     gameOver: document.getElementById('gameOver'),
+                    pauseOverlay: document.getElementById('pauseOverlay'),
                     finalScore: document.getElementById('finalScore'),
                     finalLines: document.getElementById('finalLines'),
+                    finalTime: document.getElementById('finalTime'),
                     newRecord: document.getElementById('newRecord'),
                     leaderboardList: document.getElementById('leaderboardList'),
                     restartBtn: document.getElementById('restartBtn'),
                     closeGameOverBtn: document.getElementById('closeGameOverBtn'),
-                    replayFromEndBtn: document.getElementById('replayFromEndBtn')
+                    replayFromEndBtn: document.getElementById('replayFromEndBtn'),
+                    shareBtn: document.getElementById('shareBtn'),
+                    playerName: document.getElementById('playerName'),
+                    achievementsBtn: document.getElementById('achievementsBtn'),
+                    leaderboardBtn: document.getElementById('leaderboardBtn'),
+                    resumeBtn: document.getElementById('resumeBtn'),
+                    guideBtn: document.getElementById('guideBtn'),
+                    achievementsModal: document.getElementById('achievementsModal'),
+                    leaderboardModal: document.getElementById('leaderboardModal'),
+                    resumeModal: document.getElementById('resumeModal'),
+                    achievementsGrid: document.getElementById('achievementsGrid'),
+                    achievementsUnlocked: document.getElementById('achievementsUnlocked'),
+                    achievementsTotal: document.getElementById('achievementsTotal'),
+                    achievementsProgress: document.getElementById('achievementsProgress'),
+                    leaderboardContent: document.getElementById('leaderboardContent'),
+                    clearLeaderboardBtn: document.getElementById('clearLeaderboardBtn')
                 };
                 this.bindEvents();
                 this.loadSettings();
                 this.updateLeaderboard();
+                Achievements.init();
             },
 
             bindEvents() {
                 this.elements.startBtn.addEventListener('click', () => this.handleStart());
                 this.elements.pauseBtn.addEventListener('click', () => this.handlePause());
                 this.elements.replayBtn.addEventListener('click', () => this.handleReplay());
+                document.getElementById('resumeFromPauseBtn').addEventListener('click', () => this.handleResumeFromPause());
+                document.getElementById('resumeFromPauseViewBtn').addEventListener('click', () => this.handleResumeViewResume());
                 this.elements.themeToggle.addEventListener('click', () => this.toggleTheme());
                 this.elements.soundToggle.addEventListener('change', (e) => this.toggleSound(e.target.checked));
                 this.elements.musicToggle.addEventListener('change', (e) => this.toggleMusic(e.target.checked));
                 this.elements.restartBtn.addEventListener('click', () => this.handleRestart());
                 this.elements.closeGameOverBtn.addEventListener('click', () => this.hideGameOver());
                 this.elements.replayFromEndBtn.addEventListener('click', () => this.handleReplayFromEnd());
+                this.elements.shareBtn.addEventListener('click', () => this.handleShare());
+                this.elements.achievementsBtn.addEventListener('click', () => this.showAchievementsModal());
+                this.elements.leaderboardBtn.addEventListener('click', () => this.showLeaderboardModal());
+                this.elements.resumeBtn.addEventListener('click', () => this.showResumeModal());
+                this.elements.guideBtn.addEventListener('click', () => Guide.toggle());
+                this.elements.clearLeaderboardBtn.addEventListener('click', () => this.handleClearLeaderboard());
 
                 document.querySelectorAll('.diff-btn').forEach(btn => {
                     btn.addEventListener('click', (e) => this.selectDifficulty(e.target));
@@ -212,8 +348,11 @@
                     btn.addEventListener('click', (e) => this.selectGridSize(e.target));
                 });
 
-                document.addEventListener('keydown', (e) => this.handleKeydown(e));
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => this.selectLeaderboardTab(e.target));
+                });
 
+                document.addEventListener('keydown', (e) => this.handleKeydown(e));
                 this.bindMobileControls();
             },
 
@@ -272,6 +411,7 @@
 
             handleStart() {
                 if (Game.state === 'idle' || Game.state === 'gameover') {
+                    this.startGameTimer();
                     Game.start();
                     this.elements.pauseBtn.disabled = false;
                     this.elements.pauseBtn.textContent = '暂停';
@@ -286,21 +426,39 @@
                     Game.pause();
                     if (Game.state === 'paused') {
                         this.elements.pauseBtn.textContent = '继续';
+                        this.stopGameTimer();
+                        this.elements.pauseOverlay.classList.add('show');
                     } else {
                         this.elements.pauseBtn.textContent = '暂停';
+                        this.resumeGameTimer();
+                        this.elements.pauseOverlay.classList.remove('show');
                     }
                 }
             },
 
+            handleResumeFromPause() {
+                this.elements.pauseOverlay.classList.remove('show');
+                Game.resume();
+                this.elements.pauseBtn.textContent = '暂停';
+                this.resumeGameTimer();
+            },
+
+            handleResumeViewResume() {
+                this.elements.pauseOverlay.classList.remove('show');
+                this.showResumeModal();
+            },
+
             handleRestart() {
                 this.hideGameOver();
+                this.startGameTimer();
                 Game.restart();
                 this.elements.pauseBtn.disabled = false;
                 this.elements.pauseBtn.textContent = '暂停';
             },
 
             handleReplay() {
-                if (Storage.getReplay().length > 0) {
+                const replayData = Storage.getReplay();
+                if (replayData && replayData.actions && replayData.actions.length > 0) {
                     Game.startReplay(() => {
                         console.log('Replay finished');
                     });
@@ -312,6 +470,23 @@
                 Game.startReplay(() => {
                     this.elements.replayBtn.disabled = true;
                 });
+            },
+
+            handleShare() {
+                const score = parseInt(this.elements.finalScore.textContent);
+                const timeStr = this.elements.finalTime.textContent;
+                const timeParts = timeStr.split(':');
+                const timeSeconds = parseInt(timeParts[0]) * 60 + parseInt(timeParts[1]);
+                const playerName = this.elements.playerName.value || '匿名玩家';
+                Share.showSharePanel(playerName, score, timeSeconds);
+            },
+
+            handleClearLeaderboard() {
+                if (confirm('确定要清空所有排行榜记录吗？')) {
+                    Storage.clearLeaderboard();
+                    this.updateLeaderboard();
+                    this.updateLeaderboardModalContent();
+                }
             },
 
             toggleTheme() {
@@ -361,6 +536,12 @@
                 Storage.saveSettings(settings);
             },
 
+            selectLeaderboardTab(btn) {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                this.updateLeaderboardModalContent(btn.dataset.tab);
+            },
+
             loadSettings() {
                 const settings = Storage.getSettings();
                 this.elements.soundToggle.checked = settings.soundEnabled;
@@ -386,12 +567,37 @@
 
                 Game.highScore = Storage.getHighScore();
                 document.getElementById('highScore').textContent = Game.highScore;
+
+                const user = Storage.getCurrentUser();
+                if (user.name) {
+                    this.elements.playerName.value = user.name;
+                }
+
+                const replayData = Storage.getReplay();
+                if (replayData && replayData.actions && replayData.actions.length > 0) {
+                    this.elements.replayBtn.disabled = false;
+                }
             },
 
             showGameOver(score, lines, isNewHighScore) {
+                this.stopGameTimer();
+                const elapsedTime = this.getElapsedTime();
                 this.elements.finalScore.textContent = score;
                 this.elements.finalLines.textContent = lines;
+                this.elements.finalTime.textContent = this.formatTime(elapsedTime);
                 this.elements.newRecord.style.display = isNewHighScore ? 'block' : 'none';
+                
+                const playerName = this.elements.playerName.value || '匿名玩家';
+                Storage.addToLeaderboard(playerName, score, elapsedTime);
+                
+                Achievements.checkAchievements({
+                    score: score,
+                    lines: lines,
+                    duration: elapsedTime,
+                    difficulty: Storage.getSettings().difficulty,
+                    hasTetris: Game.hasTetris || false
+                });
+                
                 this.updateLeaderboard();
                 this.elements.gameOver.classList.add('show');
                 this.elements.replayBtn.disabled = false;
@@ -402,7 +608,7 @@
             },
 
             updateLeaderboard() {
-                const leaderboard = Storage.getLeaderboard();
+                const leaderboard = Storage.getLeaderboardSortedByScore();
                 const listEl = this.elements.leaderboardList;
                 listEl.innerHTML = '';
 
@@ -414,9 +620,95 @@
                 leaderboard.slice(0, 5).forEach((entry, index) => {
                     const item = document.createElement('div');
                     item.className = 'leaderboard-item';
-                    item.innerHTML = `<span>#${index + 1} ${entry.date}</span><span>${entry.score}</span>`;
+                    item.innerHTML = `<span>#${index + 1} ${entry.playerName}</span><span>${entry.score}</span>`;
                     listEl.appendChild(item);
                 });
+            },
+
+            updateLeaderboardModalContent(sortBy = 'score') {
+                const leaderboard = sortBy === 'score' 
+                    ? Storage.getLeaderboardSortedByScore()
+                    : Storage.getLeaderboardSortedByTime();
+                const contentEl = this.elements.leaderboardContent;
+
+                if (leaderboard.length === 0) {
+                    contentEl.innerHTML = '<div class="leaderboard-empty">暂无记录</div>';
+                    return;
+                }
+
+                let html = '<table class="leaderboard-table">';
+                html += '<thead><tr><th>排名</th><th>玩家</th><th>分数</th><th>时间</th><th>日期</th></tr></thead>';
+                html += '<tbody>';
+                
+                leaderboard.forEach((entry, index) => {
+                    const medalClass = index < 3 ? `medal-${index + 1}` : '';
+                    html += `<tr class="${medalClass}">`;
+                    html += `<td>${index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}</td>`;
+                    html += `<td>${entry.playerName}</td>`;
+                    html += `<td>${entry.score}</td>`;
+                    html += `<td>${this.formatTime(entry.time)}</td>`;
+                    html += `<td>${entry.date}</td>`;
+                    html += '</tr>';
+                });
+                
+                html += '</tbody></table>';
+                contentEl.innerHTML = html;
+            },
+
+            showAchievementsModal() {
+                this.elements.achievementsModal.classList.add('show');
+                this.updateAchievementsModal();
+            },
+
+            closeAchievementsModal() {
+                this.elements.achievementsModal.classList.remove('show');
+            },
+
+            updateAchievementsModal() {
+                const achievements = Achievements.getAllAchievements();
+                const unlockedCount = Achievements.getUnlockedCount();
+                const totalCount = Achievements.getTotalCount();
+                
+                this.elements.achievementsUnlocked.textContent = unlockedCount;
+                this.elements.achievementsTotal.textContent = totalCount;
+                this.elements.achievementsProgress.style.width = `${(unlockedCount / totalCount) * 100}%`;
+
+                let html = '';
+                achievements.forEach(achievement => {
+                    const statusClass = achievement.unlocked ? 'unlocked' : 'locked';
+                    const icon = achievement.unlocked ? achievement.icon : '❓';
+                    html += `
+                        <div class="achievement-item ${statusClass}">
+                            <div class="achievement-icon">${icon}</div>
+                            <div class="achievement-info">
+                                <div class="achievement-name">${achievement.name}</div>
+                                <div class="achievement-desc">${achievement.description}</div>
+                            </div>
+                            <div class="achievement-status">${achievement.unlocked ? '✓' : '🔒'}</div>
+                        </div>
+                    `;
+                });
+                this.elements.achievementsGrid.innerHTML = html;
+            },
+
+            showLeaderboardModal() {
+                this.elements.leaderboardModal.classList.add('show');
+                this.updateLeaderboardModalContent('score');
+            },
+
+            closeLeaderboardModal() {
+                this.elements.leaderboardModal.classList.remove('show');
+            },
+
+            showResumeModal() {
+                this.elements.resumeModal.classList.add('show');
+            },
+
+            closeResumeModal() {
+                this.elements.resumeModal.classList.remove('show');
+                if (Game.state === 'paused') {
+                    this.elements.pauseOverlay.classList.add('show');
+                }
             },
 
             updateStartButton(text) {
@@ -429,16 +721,54 @@
 
             updateScoreDisplay() {
                 Game.updateScoreDisplay();
+            },
+
+            startGameTimer() {
+                this.gameStartTime = Date.now();
+                this.gameTimeInterval = setInterval(() => {
+                    const elapsed = this.getElapsedTime();
+                    this.elements.gameTime.textContent = this.formatTime(elapsed);
+                }, 1000);
+            },
+
+            stopGameTimer() {
+                if (this.gameTimeInterval) {
+                    clearInterval(this.gameTimeInterval);
+                    this.gameTimeInterval = null;
+                }
+            },
+
+            resumeGameTimer() {
+                if (!this.gameTimeInterval) {
+                    this.gameStartTime = Date.now() - this.getElapsedTime() * 1000;
+                    this.gameTimeInterval = setInterval(() => {
+                        const elapsed = this.getElapsedTime();
+                        this.elements.gameTime.textContent = this.formatTime(elapsed);
+                    }, 1000);
+                }
+            },
+
+            getElapsedTime() {
+                if (!this.gameStartTime) return 0;
+                return Math.floor((Date.now() - this.gameStartTime) / 1000);
+            },
+
+            formatTime(seconds) {
+                const mins = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+                return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
             }
         };
 
         window.onload = () => {
-            Renderer.init('gameCanvas', 'nextCanvas');
-            Game.init();
-            UI.init();
-            document.getElementById('highScore').textContent = Storage.getHighScore();
-            Renderer.clearBoard();
-            Renderer.clearNext();
+            Loading.start(() => {
+                Renderer.init('gameCanvas', 'nextCanvas');
+                Game.init();
+                UI.init();
+                document.getElementById('highScore').textContent = Storage.getHighScore();
+                Renderer.clearBoard();
+                Renderer.clearNext();
+            });
         };
 
         document.addEventListener('touchstart', function() {
