@@ -445,15 +445,21 @@ class Piece {
         );
         const oldShape = this.shape.map(row => [...row]);
         this.shape = newShape;
+        
+        const kicks = [-1, 1, -2, 2];
+        
         if (this.collidesBoard(0, 0)) {
-            if (this.collidesBoard(-1, 0)) {
-                if (this.collidesBoard(1, 0)) {
-                    this.shape = oldShape;
-                    return;
+            let kicked = false;
+            for (const kick of kicks) {
+                if (!this.collidesBoard(kick, 0)) {
+                    this.x += kick;
+                    kicked = true;
+                    break;
                 }
-                this.x++;
             }
-            this.x--;
+            if (!kicked) {
+                this.shape = oldShape;
+            }
         }
     }
 
